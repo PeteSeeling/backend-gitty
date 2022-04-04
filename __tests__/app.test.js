@@ -20,4 +20,13 @@ describe('backend-gitty routes', () => {
     expect(req.header.location).toMatch(/https:\/\/github.com\/login\/oauth\/authorize\?client_id=[\w\d]+&scope=user&redirect_uri=http:\/\/localhost:7890\/api\/v1\/github\/login\/callback/i);
 
   });
+
+  it('should login user and redirect user to dashboard', async () => {
+    const res = await request
+      .agent(app)
+      .get('/api/v1/github/login/callback?code=42')
+      .redirects(1);
+      
+    expect(res.req.path).toEqual('/api/v1/posts');
+  });
 });
