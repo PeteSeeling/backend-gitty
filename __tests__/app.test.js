@@ -27,6 +27,6 @@ describe('backend-gitty routes', () => {
       .get('/api/v1/github/login/callback?code=42')
       .redirects(1);
 
-    expect(res.req.path).toEqual('/');
+    expect(res.req.path).toEqual('/api/v1/posts');
   });
 });
