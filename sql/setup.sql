@@ -11,7 +11,7 @@ CREATE TABLE github_users (
 CREATE TABLE posts (
     id BIGINT GENERATED ALWAYS AS IDENTITY PRIMARY KEY,
     text TEXT NOT NULL,
-    username TEXT REFERENCES github_users(github_username)
+    username TEXT REFERENCES github_users(github_username),
     title TEXT NOT NULL,
-    description VARCHAR(255) NOT NULL,
+    description VARCHAR(255) NOT NULL
 );

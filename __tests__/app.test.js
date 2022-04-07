@@ -45,7 +45,7 @@ it('allows a user to create a post', async () => {
 
   await agent.get('/api/v1/github/login/callback?code=42').redirects(1);
 
-  const res = await agent.post('/api/v1/posts').send({
+  const res = await agent.post('/api/v1/post').send({
     title: 'Newest Post',
     description: 'please let this work'
   });
