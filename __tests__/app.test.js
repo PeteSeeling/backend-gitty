@@ -39,3 +39,23 @@ it('should test the delete', async () => {
 
   expect(req.body.message).toEqual('Signed out Successfully');
 });
+
+it('allows a user to create a post', async () => {
+  const agent = request.agent(app);
+
+  await agent.get('/api/v1/github/login/callback?code=42').redirects(1);
+
+  const res = await agent.post('/api/v1/posts').send({
+    title: 'Newest Post',
+    description: 'please let this work'
+  });
+
+
+  expect(res.body).toEqual({
+    id: expect.any(String),
+    title: 'Newest Post',
+    description: 'please let this work',
+
+
+  });
+});
