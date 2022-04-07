@@ -2,6 +2,7 @@ const pool = require('../lib/utils/pool');
 const setup = require('../data/setup');
 const request = require('supertest');
 const app = require('../lib/app');
+const GithubUser = require('../lib/models/User');
 
 jest.mock('../lib/utils/github');
 
@@ -27,7 +28,7 @@ describe('backend-gitty routes', () => {
       .get('/api/v1/github/login/callback?code=42')
       .redirects(1);
 
-    expect(res.req.path).toEqual('/api/v1/posts');
+    expect(res.req.path).toEqual('/api/v1/post');
   });
 });
 
@@ -50,12 +51,52 @@ it('allows a user to create a post', async () => {
     description: 'please let this work'
   });
 
-
   expect(res.body).toEqual({
     id: expect.any(String),
     title: 'Newest Post',
     description: 'please let this work',
+  });
 
+  it('gets all posts from all users', async () => {
+    await GithubUser.insert({
+      username:'fake_user1',
+      avatar: 'https://placebear.com/150/150'
+    });
+    await request(app)
+      .post('/api/v1/post')
+      .send({
+        title:'post 1',
+        description:'post 1 text'
+      });
 
+    await request(app)
+      .post('/api/v1/post')
+      .send({
+        title:'post 2',
+        description:'post 2 text'
+      });
+
+    const expected = [
+      {
+        id: expect.any(String),
+        title:'post 1',
+        description:'post 1 text',
+        username:'fake_user1',
+        avatar: 'https://placebear.com/150/150',
+      },
+      {
+        id: expect.any(String),
+        title:'post 2',
+        description:'post 2 text',
+        username:'fake_user1',
+        avatar: 'https://placebear.com/150/150',
+      }
+    ];
+
+    const req = await request(app)
+      .get('/api/v1/post');
+
+    expect(req.body).toEqual(expected);
   });
 });
+
