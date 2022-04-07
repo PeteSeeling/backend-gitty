@@ -30,3 +30,12 @@ describe('backend-gitty routes', () => {
     expect(res.req.path).toEqual('/api/v1/posts');
   });
 });
+
+
+it('should test the delete', async () => {
+  const req = await request
+    .agent(app)
+    .delete('/api/v1/github');
+
+  expect(req.body.message).toEqual('Signed out Successfully');
+});
