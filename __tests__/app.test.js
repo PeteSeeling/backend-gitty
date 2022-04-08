@@ -23,80 +23,85 @@ describe('backend-gitty routes', () => {
   });
 
   it('should login user and redirect user to dashboard', async () => {
-    const res = await request
+    const req = await request
       .agent(app)
       .get('/api/v1/github/login/callback?code=42')
       .redirects(1);
 
-    expect(res.req.path).toEqual('/api/v1/post');
-  });
-});
-
-
-it('should test the delete', async () => {
-  const req = await request
-    .agent(app)
-    .delete('/api/v1/github');
-
-  expect(req.body.message).toEqual('Signed out Successfully');
-});
-
-it('allows a user to create a post', async () => {
-  const agent = request.agent(app);
-
-  await agent.get('/api/v1/github/login/callback?code=42').redirects(1);
-
-  const res = await agent.post('/api/v1/post').send({
-    title: 'Newest Post',
-    description: 'please let this work'
+    expect(req.req.path).toEqual('/api/v1/post');
   });
 
-  expect(res.body).toEqual({
-    id: expect.any(String),
-    title: 'Newest Post',
-    description: 'please let this work',
+
+
+  it('should test the delete', async () => {
+    const req = await request
+      .agent(app)
+      .delete('/api/v1/github');
+
+    expect(req.body.message).toEqual('Signed out Successfully');
   });
 
-  it('gets all posts from all users', async () => {
-    await GithubUser.insert({
-      username:'fake_user1',
-      avatar: 'https://placebear.com/150/150'
+  it('allows a user to create a post', async () => {
+    const agent = request.agent(app);
+
+    await agent.get('/api/v1/github/login/callback?code=42').redirects(1);
+
+    const res = await agent.post('/api/v1/post').send({
+      title: 'Newest Post',
+      description: 'please let this work'
     });
-    await request(app)
-      .post('/api/v1/post')
-      .send({
-        title:'post 1',
-        description:'post 1 text'
+
+    expect(res.body).toEqual({
+      id: expect.any(String),
+      title: 'Newest Post',
+      description: 'please let this work',
+    });
+
+
+
+    it('gets all posts from all users', async () => {
+
+      await GithubUser.insert({
+        username:'fake_user1',
+        avatar: 'https://placebear.com/150/150'
       });
 
-    await request(app)
-      .post('/api/v1/post')
-      .send({
-        title:'post 2',
-        description:'post 2 text'
-      });
+      await request(app)
+        .post('/api/v1/post')
+        .send({
+          title:'post 1',
+          description:'post 1 text'
+        });
 
-    const expected = [
-      {
-        id: expect.any(String),
-        title:'post 1',
-        description:'post 1 text',
-        username:'fake_user1',
-        avatar: 'https://placebear.com/150/150',
-      },
-      {
-        id: expect.any(String),
-        title:'post 2',
-        description:'post 2 text',
-        username:'fake_user1',
-        avatar: 'https://placebear.com/150/150',
-      }
-    ];
+      await request(app)
+        .post('/api/v1/post')
+        .send({
+          title:'post 2',
+          description:'post 2 text'
+        });
 
-    const req = await request(app)
-      .get('/api/v1/post');
+      const expected = [
+        {
+          id: expect.any(String),
+          title:'post 1',
+          description:'post 1 text',
+          username:'fake_user1',
+          avatar: 'https://placebear.com/150/150',
+        },
+        {
+          id: expect.any(String),
+          title:'post 2',
+          description:'post 2 text',
+          username:'fake_user1',
+          avatar: 'https://placebear.com/150/150',
+        }
+      ];
 
-    expect(req.body).toEqual(expected);
+      const req = await request(app)
+        .get('/api/v1/post');
+
+      expect(req.body).toEqual(expected);
+    });
   });
-});
 
+});
