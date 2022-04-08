@@ -31,8 +31,6 @@ describe('backend-gitty routes', () => {
     expect(req.req.path).toEqual('/api/v1/post');
   });
 
-
-
   it('should test the delete', async () => {
     const req = await request
       .agent(app)
@@ -55,53 +53,49 @@ describe('backend-gitty routes', () => {
       id: expect.any(String),
       title: 'Newest Post',
       description: 'please let this work',
-    });
-
-
-
-    it('gets all posts from all users', async () => {
-
-      await GithubUser.insert({
-        username:'fake_user1',
-        avatar: 'https://placebear.com/150/150'
-      });
-
-      await request(app)
-        .post('/api/v1/post')
-        .send({
-          title:'post 1',
-          description:'post 1 text'
-        });
-
-      await request(app)
-        .post('/api/v1/post')
-        .send({
-          title:'post 2',
-          description:'post 2 text'
-        });
-
-      const expected = [
-        {
-          id: expect.any(String),
-          title:'post 1',
-          description:'post 1 text',
-          username:'fake_user1',
-          avatar: 'https://placebear.com/150/150',
-        },
-        {
-          id: expect.any(String),
-          title:'post 2',
-          description:'post 2 text',
-          username:'fake_user1',
-          avatar: 'https://placebear.com/150/150',
-        }
-      ];
-
-      const req = await request(app)
-        .get('/api/v1/post');
-
-      expect(req.body).toEqual(expected);
+      username: 'fake_github_user'
     });
   });
 
+  it('gets all posts from all users', async () => {
+    const agent = request.agent(app);
+
+    await agent.get('/api/v1/github/login/callback?code=42').redirects(1);
+
+    await agent
+      .post('/api/v1/post')
+      .send({
+        title:'post 1',
+        description:'post 1 text'
+      });
+
+    await agent
+      .post('/api/v1/post')
+      .send({
+        title:'post 2',
+        description:'post 2 text'
+      });
+
+    const expected = [
+      {
+        id: expect.any(String),
+        title:'post 1',
+        description:'post 1 text',
+        username:'fake_github_user',
+      },
+      {
+        id: expect.any(String),
+        title:'post 2',
+        description:'post 2 text',
+        username:'fake_github_user',
+      }
+    ];
+
+    const req = await agent
+      .get('/api/v1/post');
+
+    expect(req.body).toEqual(expected);
+  });
 });
+
+
